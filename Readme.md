@@ -23,3 +23,22 @@ $$z^{l+1}=W^{l+1}a^l+b^{l+1}=W^{l+1}\delta(z^l)+b^{l+1}$$
 $$\delta^l=(W^{l+1})^T\delta^{l+1}\bigodot\delta'(z^l)$$
 这同时也要注意求导后矩阵运算是左乘还是右乘。
 接下来我们分析误差函数$C$对每一层参数$W$的梯度
+$$\frac{\partial C}{\partial w^l}=\frac{\partial C}{\partial z^l}\frac{\partial z^l}{\partial w^l}=\delta^l(a^{l-1})^T$$
+$$\frac{\partial C}{\partial b^l}=\frac{\partial C}{\partial z^l}\frac{\partial z^l}{\partial b^l}=\delta^l$$
+接下来通过梯度下降法更新权重和偏置
+$$W^l=W^l-\eta\frac{\partial C}{\partial w^l}$$
+$$b^l=b^l-\eta\frac{\partial C}{\partial b^l}$$
+在上述的分析中，我们只根据一组训练数据更新权重，在一般情况下，我们往往会采用随即梯度下降法，一次性训练一批数据，先计算一批数据的中每一组数据的误差，在根据它们的平均值来进行权重更新
+$$W^l=W^l-\frac{\eta}{batch_size}\sum{\frac{\partial C}{\partial W^l}}$$
+
+```python
+def full_connect(self,input_data,fc,front_delta=None,deriv=False):
+    N=input_data.shape[0]
+    if deriv==False:
+        output_data=np.dot(input_data.reshape(N,-1),fc)
+        return output_data
+    else:
+        back_delta=np.dot(front_delta,fc.T).reshape(input_data.shape)
+        fc+=self.lr*np.dot(input_data.reshape(N,-1),front_delta)
+        return back_delta,fc
+```
