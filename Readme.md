@@ -156,3 +156,51 @@ def convolution(self,input_data,kernel,front_delta=None,deriv=False):
         return back_delta, kernal
 
 ```
+
+## 池化层的反向传播
+池化层一般没有参数，所以池化层在反向传播的过程中，并不需要进行参数的更新，只需要将梯度误差继续传递下去即可。但是池化操作使得特征图的尺寸发生了变化，这使得梯度误差无法对位的进行传递下去。所以我们采取了保持梯度误差总和不变的原则，例如在$2\times2$的池化层中，我们把1个像素的梯度传递给4个梯度。
+### 平均池化
+<img src="https://ss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=4057286203,3783119081&fm=15&gp=0.jpg" div align=center />  
+
+把某个像素的梯度误差平均分配给前一次
+
+### 最大池化
+<img src="https://lh3.googleusercontent.com/proxy/zP6Qw8bUFqDxX7lEpvCBp7Vhbje1-t0gZdvIdLfNyGqbPspvNBTbu0GYEoNeUqDeVzyLee-vF3lIRTTibxu9f2JSwUH_3xUFrfdJNmGW7m8ufCqpEgsGd7IjSQPdyCat_Q" div aligen=cenert>  
+
+在最大池化中也要满足梯度误差总和不变的原则，在反向传播的过程中，我们直接把该元素的梯度误差传递给上一层的最大像素，其他像素梯度误差为0，不接受梯度误差。所以我们需要一个额外的变量记录最大值像素所在的坐标。
+
+```python
+def mean_pool(self,input_map,pool,front_delta,deriv=False):
+    N,C,W,H=ipnput_map.shape
+    P_W,P_H=tuple(pool)
+    if(deriv=False):
+        feature_map=np.zeros((N,C,W/P_W,H/P_H))
+        feature_map=block_reduce(input_map,tuple((1,1,P_W,P_H)),func=np.mean)
+        return feature_map
+    else:
+        back_delta=np.zeros((N,C,W,H))
+        back_delta=front_delta.repaet(P_W,axis=2).repeat(P_H,axis=3)
+        back_delta/=(P_W*P_H)
+        return back_delta
+```
+## relu反向传播
+
+$$relu(x)=\begin{cases}
+    x,x>0\\
+    0,x\leq0
+\end{cases}$$
+
+$$
+\delta_{Relu(x)}=\begin{cases}
+    1,x>0\\
+    0.x\leq0
+\end{cases}
+$$
+```python
+def relu(self,x,front_delta=None,deriv=False):
+    if(deriv==False)：
+        return x*(x>0)
+    else:
+        return front_delta*1.0*(x>0)
+```
+
