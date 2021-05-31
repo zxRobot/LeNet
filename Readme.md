@@ -110,7 +110,9 @@ $\begin{pmatrix}
 \end{pmatrix}$  
 为了符合梯度计算，我们在误差矩阵周围填充了一圈0，此时我们将卷积核反转180度之后和本层的梯度误差进行卷积，就可以得到下一层的梯度误差。
 $$\delta^l=\frac{\partial C}{\partial z^l}=\frac{\partial C}{\partial z^{l+1}}\frac{\partial z^{l+1}}{\partial z^l}=\delta^{l+1}\frac{\partial z^{l+1}}{\partial z^l}=\delta^{l+1}*rot180(W^{l+1})$$ 
-现在我们推导完了误差的反向传播关系，现在我们根据梯度误差来对$W$、$b$进行更新。
+
+现在我们推导完了误差的反向传播关系，现在我们根据梯度误差来对$W$、$b$进行更新。  
+
 $$z^{l+1}=a^{l}*W^{l+1}+b$$
 $$\frac{\partial C}{\partial W^{l+1}}=a^l*\delta ^{l+1}$$  
 
