@@ -79,7 +79,7 @@ class LeNet():
             for in_nums_index in range(in_nums):
                 for ke_nums_index in range(ke_nums):
                     for in_dims_index in range(in_dims):
-                        output_data+=convolve2d(input_data[in_nums_index][in_dims_index]\
+                        output_data[in_nums_index][ke_nums_index]+=convolve2d(input_data[in_nums_index][in_dims_index]\
                             ,kernel[ke_nums_index][in_dims_index],mode='valid')
             return output_data
         else:
@@ -89,9 +89,9 @@ class LeNet():
             for in_nums_index in range(in_nums):
                 for ke_nums_index in range(ke_nums):
                     for in_dims_index in range(in_dims):
-                        back_delta+=convolve2d(pad_front_delta[in_nums_index][in_dims_index]\
+                        back_delta[in_nums_index][in_dims_index]+=convolve2d(pad_front_delta[in_nums_index][in_dims_index]\
                             ,kernel[ke_nums_index,in_dims_index,::-1,::-1],mode='valid')
-                        kernel_gradient+=convolve2d(
+                        kernel_gradient[ke_nums_index][in_dims_index]+=convolve2d(
                         front_delta[in_nums_index][ke_nums_index],input_data[in_nums_index][in_dims_index],mode='valid')
             kernel+=self.lr*kernel_gradient
             return back_delta,kernel
